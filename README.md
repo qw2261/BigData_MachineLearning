@@ -240,3 +240,125 @@ $d$为假设空间
 
 
 
+## 第三章 模型评估方法
+
+模型评估方法
+
+- 泛化误差评估:
+  - 训练集 training set: 用于训练模型
+  - 验证集 validation set: 用于模型选择
+  - 测试集 test set: 用于模型泛化误差的近似
+- 训练集和测试集的产生
+  - 留出法
+  - 交叉验证法
+  - 自助法
+
+
+
+留出法 Hold-out
+
+训练集S, 测试集T, D为数据集
+
+$D=S\cup T$
+
+$S\cap T=\oslash$
+
+- 注意点:
+  - 训练/测试集的划分尽可能保持数据分布的一致性，避免引入额外偏差
+  - 存在多种划分方式对初始数据集进行分割，采用若干次随机划分，重复实验
+- 存在问题:
+  - S大，T小; S小，T大，都会带来负面影响
+
+
+
+交叉验证法 cross validation
+
+- $D \rightarrow k$个大小相等的互斥子集
+- $D=D_{1}\cup D_{2}\cup ...\cup D_{k}$, $D_{i}\cap D_{j}=\oslash (i\neq j)$
+- $K-1$个子集并集为训练集，$1$个测试集
+- ![](./Lectures/Lecture_3/1.png)
+
+
+
+自助法 boostrapping
+
+- 自助采样法:
+  - $\lim_{m\rightarrow \infty}(1-\frac{1}{m})^{m}\to\frac{1}{e}\approx0.368$
+- 测试集: $D/D’$
+- 优点
+  - 适用于数据集较小，难以划分;
+  - 从数据集产生不同的训练集，适用于集成学习方法;
+- 缺点
+  - 产生的训练集改变了初始数据集的分布，会引入估计偏差。
+
+
+
+性能度量
+
+- 不同任务，性能度量不同
+
+  - 回归任务 - 均方误差:
+    - $E(f;D)=\frac{1}{m}\sum_{i=1}^{m}(f(x_{i}-y_{i}))^{2}$
+  - 更一般:
+    - $E(f;D)=\int_{x\sim D}(f(x_{i}-y_{i}))^{2}p(x)dx$
+
+- 错误率和精度 - 分类任务
+
+  - 错误率
+    - $E(f;D)=\frac{1}{m}\sum_{i=1}^{m} \mathbb I (f(x_{i}\neq y_{i}))$, $\mathbb I$ is the indicator function
+  - 精度
+    - $acc(f;D)=\frac{1}{m}\sum_{i=1}^{m}\mathbb I (f(x_{i}=y_{i}))=1-E(f;D)$
+  - 更一般:
+    - $E(f;D)=\int_{x\sim D}\mathbb I (f(x)\neq y)p(x)dx$
+    - $acc(f;D)=\int_{x\sim D}\mathbb I (f(x)= y)p(x)dx=1-E(f;D)$
+
+- 查准率precision 、 查全率recall与F1
+
+  - ![](./Lectures/Lecture_3/2.png)
+
+-  P-R曲线
+
+  - ![](./Lectures/Lecture_3/3.png)
+  - 平衡点BEP
+    - 查准率$=$查全率
+  - $F1$度量
+    - $F1=\frac{2\times P\times R}{p+R}=\frac{2\times TP}{样例总数+TP-TN}$
+  - $F_{\beta}$ 度量
+    - $F_{\beta}=\frac{(1+\beta^{2})\times P\times R}{(\beta^2\times P) + R}$
+  - ![](./Lectures/Lecture_3/4.png)
+
+  - ROC (Receiver Operating Characteristic), AUC(Area Under ROC Curve)
+    - 纵轴:“真正例率 ” (True Positive Rate, 简称 TPR)
+    - 横轴:“假正例率” (False Positive Rate, 简称 FPR)
+    - $TPR=\frac{TP}{TP+FN}$, $FPR=\frac{FP}{TN+FP}$
+    - ![](./Lectures/Lecture_3/5.png)
+  - 代价敏感错误率与代价曲线
+    - 应用背景: 不同类型的错误所造成的后果不同
+    - 二分类任务:代价矩阵(cost matrix)
+      - ![](./Lectures/Lecture_3/6.png)
+      - 对应代价敏感错误率
+        - $E(f;D;cost)=\frac{1}{m}(\sum_{x_{i}\in D^{+}}\mathbb I(f(x_{i})\neq y_{i})\times cost_{01} + \sum_{x_{i}\in D^{-}} \mathbb I f(x_{i})\neq y_{i}\times cost_{10})$
+        - ![](./Lectures/Lecture_3/7.png)
+        - ![](./Lectures/Lecture_3/8.png)
+
+- 比较检验
+
+  - 问题提出: 能否直接用上述评估方法获得的性能度量"比大小"?
+    - 答案:不能
+  -  原因:
+    - 希望比较泛化性能，实验评估的是测试集性能;
+    - 测试集性能和测试集的选择有关，测试样例不同，结果不同;
+    - 机器学习算法本身有一定的随机性，相同的参数，相同的数据集， 结果也会不同。
+  - 方案: 统计假设检验(hypothesis test)
+    - 在测试集上观察到学习器A比B好, 则 A 的泛化性能是否在统计意义上优于 B, 以及这个结论的把握有多大
+
+- 假设检验
+
+  - 对单个学习器泛化性能的假设进行检验
+  - "二项检验" (binomial test)
+    - $t$ 检验 (t-test)
+  - 对不同学习器的性能进行比较
+    - "成对$t$ 检验" (paired t-tests)
+
+- ![](./Lectures/Lecture_3/9.png)
+
