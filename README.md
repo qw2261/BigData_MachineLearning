@@ -284,7 +284,7 @@ $S\cap T=\oslash$
 
 - 自助采样法:
   - $\lim_{m\rightarrow \infty}(1-\frac{1}{m})^{m}\to\frac{1}{e}\approx0.368$
-- 测试集: $D/D’$
+- 测试集: $D \backslash D’$, $\backslash$ 为集合减法
 - 优点
   - 适用于数据集较小，难以划分;
   - 从数据集产生不同的训练集，适用于集成学习方法;
@@ -355,10 +355,158 @@ $S\cap T=\oslash$
 - 假设检验
 
   - 对单个学习器泛化性能的假设进行检验
-  - "二项检验" (binomial test)
+    - "二项检验" (binomial test)
     - $t$ 检验 (t-test)
   - 对不同学习器的性能进行比较
     - "成对$t$ 检验" (paired t-tests)
 
-- ![](./Lectures/Lecture_3/9.png)
+- 二项检验
+
+  - 假设检验: "假设"是对学习器泛化错误率分布的某种判别或猜想，如$\epsilon$
+  - 现实任务中我们只能获知测试错误率$\hat{\epsilon}$
+  - 那么: 泛化错误率为$\epsilon$的学习器将其中$m'$个样本误分类的概率:
+    - $P(\hat{\epsilon};\epsilon)=\begin{pmatrix} m \\ \hat{\epsilon}\times m \end{pmatrix}\epsilon^{\hat{\epsilon}\times m}(1-\epsilon)^{m-\hat{\epsilon}\times m}$
+  - 使用二项检验对泛化误差$\epsilon \leq 0.3$的假设进行检验
+  - $1-\alpha$的概率内所能观测到的最大错误率:
+    - $\overline{\epsilon}=\max\in s.t. \sum_{i=\epsilon_{0}\times m + 1}^{m}(_{i}^{m})\epsilon^{i}(1-\epsilon)^{m-i}<\alpha$
+    - ![](./Lectures/Lecture_3/9.png)
+
+- t检验
+
+  - 多次重复训练/测试，得到多个测试错误率
+  - K个测试错误率, $\hat{\epsilon_{1}},\hat{\epsilon_{2}}...\hat{\epsilon_{k}}$
+  - ![](./Lectures/Lecture_3/10.png)
+  - ![](./Lectures/Lecture_3/11.png)
+
+- 交叉验证t检验
+  - ![](./Lectures/Lecture_3/12.png)
+
+
+
+偏差与方差
+
+- 偏差-方差分解
+- 对测试样本$x$
+  -  令$y_D$为$x$在数据集中的标记
+  - $y$为$x$的真实标记
+- $f(X; D)$为训练集$D$上学得模型$f$在$x$上的预测输出
+- 回归方法的期望预测:
+  - $\overline{f}(x)=E_{D}[f(x; D)]$
+  - $var(x)=E_{D}[(f(x; D)-\overline{f}(x))^{2}]$
+  - 噪声为
+    - $\epsilon^{2}=E_{D}[(y_{D}-y)^{2}]$
+    - 期望输出与真实标记的差别称为偏差
+      - $bias^{2}(x)=(\overline{f}(x)-y)^{2}$
+  - ![](./Lectures/Lecture_3/13.png)
+  - ![](./Lectures/Lecture_3/14.png)
+
+
+
+## 第四章 感知机模型
+
+感知机模型
+
+- 神经网络、支持向量机的基础 (线性可分性和对偶性)
+
+![](./Lectures/Lecture_4/1.png)
+
+- 感知机 (Perceptron)
+  - 针对: 二分类问题
+  - 实质: 分离超平面，判别模型
+  - 策略: 基于误分类的损失函数
+  - 方法: 利用梯度下降法对损失函数进行极小化
+  - 特点: 感知机学习算法具有简单而易于实现的优点
+  - 分类:分为原始形式和对偶形式
+- 定义
+  - 假设输入空间 (特征空间) 是$X \subseteq \mathbb R^{n}$，输出空间是$Y=\{+1, -1\}$
+  - 输入$x \in X$表示实例的特征向量，对应于输入空间 (特征空间) 的点，输出表示实例的类别，由输入空间到输出空间的函数:
+    - $f(x)=sign(\vec{w}\cdot \vec{x} + b)$称之为感知机
+    - 模型参数: $w$, $x$, 内积, 权值向量, 偏置
+    - 符号函数
+      - $sign(x)=\begin{cases} 
+        +1, & x\geq 0 \\ 
+        -1, & x<0 \\
+         \end{cases}$
+- 感知机的几何解释
+  - 线性方程: $\vec{w}\cdot \vec{x} + b = 0$
+  - 对应于超平面$S$, $\vec{w}$为法向量, $b$截距, 分离正负类
+  - 分离超平面
+    - ![](./Lectures/Lecture_4/2.png)
+  - 证明$\vec{w}$是法向量
+    - 超平面为$\vec{w}\cdot \vec{x}+b=0$, 取平面内任意两点$x_{1}, x_{2}$, 有
+      - $\begin{cases} 
+        \vec{w} \cdot \vec{x_1} + b = 0 & (1)\\ 
+        \vec{w} \cdot \vec{x_2} + b = 0 & (2)\\ 
+        \end{cases}$
+      - $(1)-(2)=\vec{w}\cdot(\vec{x_1}-\vec{x_2})=0$ 且$\vec{x_1}-\vec{x_2}=\vec{x_2 x_1}$
+      - 因此$\vec{w}$垂直此平面
+  - 感知机是线性的，不能处理异或分类问题
+
+
+
+感知机学习策略
+
+- 定义损失函数，并将其极小化
+- 点到直线的距离
+  - $Ax+By+C=0$
+  - $d=|\frac{Ax_0 + By_0 + C}{\sqrt{A^2 + B^2}}|$
+- 如何定义损失函数
+  - 自然选择: 误分类点的数目, 但损失函数不是$w$, $b$连续可导, 不宜优化
+  - 另一选择: 误分类点到超平面的总距离:
+    - 距离: $\frac{1}{||\vec{w}||}|\vec{w}\cdot \vec{x}_0 + b|$
+    - 误分类点: 
+      - $-y_{i}(\vec{w}\cdot \vec{x}+b)>0$
+      - 误分类点的距离: $-\frac{1}{||\vec{w}||}y_{i}|\vec{w}\cdot \vec{x}_i + b|$
+      - 总距离: $-\frac{1}{||\vec{w}||}\sum_{x_{i}\in M}y_{i}|\vec{w}\cdot \vec{x}_i + b|$
+  - 损失函数, 不考虑范数
+    - $L(\vec{w}, b)=-\sum_{x_{i}\in M}y_{i}(\vec{w}\cdot \vec{x_{i}} + b)$
+    - $M$为误分类点的数目
+
+
+
+感知机的学习算法
+
+- 求解最优化问题:
+  - $min_{w,b} L(w, b)=-\sum_{x_i \in M}y_{i}(w\cdot x_i + b)$
+  - 随机梯度下降法
+  - 首先任意选择一个超平面, $w, b$, 然后不断极小化目标函数，损失函数$L$的梯度
+  - 选取误分类点更新
+    - $\nabla_{w}L(w, b)=-\sum_{x_{i}\in M}y_{i}x_{i}$, $w\leftarrow w + \eta y_{i}x_{i}$
+    - $\nabla_{b}L(w, b)=-\sum_{x_{i}\in M}y_{i}$, $b\leftarrow b+\eta y_{i}$
+    - $\eta$: 学习步长, 学习率
+  - ![](./Lectures/Lecture_4/3.png)
+  - 例子
+    - ![](./Lectures/Lecture_4/4.png)
+    - ![](./Lectures/Lecture_4/5.png)
+    - ![](./Lectures/Lecture_4/6.png)
+- 算法的收敛性
+  - 算法的收敛性: 证明经过有限次迭代可以得到一个将训练数据集完全正确划分的分离超平 面及感知机模型。
+  - ![](./Lectures/Lecture_4/7.png)
+  - ![](./Lectures/Lecture_4/8.png)
+  - ![](./Lectures/Lecture_4/9.png)
+  - ![](./Lectures/Lecture_4/10.png)
+  - ![](./Lectures/Lecture_4/11.png)
+  - ![](./Lectures/Lecture_4/12.png)
+  - ![](./Lectures/Lecture_4/13.png)
+  - 定理表明:
+    - 误分类的次数k是有上界的，当训练数据集线性可分时，感知机学习算法原始形式迭代是收 敛的。
+    - 感知机算法存在许多解，既依赖于初值，也依赖迭代过程中误分类点的选择顺序。
+    - 为得到唯一分离超平面，需要增加约束，如SVM。
+    - 线性不可分数据集，迭代震荡。
+
+
+
+感知机算法的对偶形式, 类似SVM的对偶形式
+
+- ![](./Lectures/Lecture_4/14.png)
+- 实例点更新次数越多，意味着该点离分离超平面?
+  - 不是
+- ![](./Lectures/Lecture_4/15.png)
+- ![](./Lectures/Lecture_4/16.png)
+- ![](./Lectures/Lecture_4/17.png)
+- ![](./Lectures/Lecture_4/18.png)
+
+
+
+
 
